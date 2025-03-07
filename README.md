@@ -10,3 +10,5 @@ If you use this code in your work, please reference our paper pre-print: Full-He
 https://arxiv.org/abs/2501.18716
 
 A DOI will be added once the paper is published (currently in review).
+
+Kaggle link to model, demo and accompanying data release: https://www.kaggle.com/datasets/andrewbirnbaum/full-head-mri-and-segmentation-of-stroke-patients
