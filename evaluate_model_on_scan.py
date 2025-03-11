@@ -31,13 +31,13 @@ if gpus:
 OUTPUT_PATH = '/output/'
 
 scan_path = '/path/to/MRI.nii'
+segmentation_path = None
 
 SAGITTAL_MODEL_SESSION_PATH = '/path/to/model.h5'
 AXIAL_MODEL_SESSION_PATH = '/path/to/model.h5'
 CORONAL_MODEL_SESSION_PATH = '/path/to/model.h5'
 CONSENSUS_LAYER_PATH = '/path/to/layer.h5'
 
-segmentation_path = None
 anterior_commissure = None 
     
 save_segmentation = False
@@ -92,10 +92,11 @@ if __name__ == '__main__':
 
     segmentation = segment_MRI(nii_out.get_fdata(), coords, model_sagittal,model_coronal, model_axial, consensus_model)
 
-    # nii_model_seg_reconstructed = reshape_back_to_original(model_segmentation_sagittal, nii, reconstruction_parms, resample_order=0)
+    nii_model_seg_reconstructed = reshape_back_to_original(segmentation, nii, reconstruction_parms, resample_order=0)
     
-    nii_out_pred = nib.Nifti1Image(np.array(segmentation, dtype='int16'), nii_out.affine)
-    nib.save(nii_out_pred, OUTPUT_PATH + subject + '_consensus_segmentation.nii')    
-
-        
+    if save_segmentation:
+        nii_out_pred = nib.Nifti1Image(np.array(segmentation, dtype='int16'), nii_out.affine)
+        nib.save(nii_out_pred, OUTPUT_PATH + subject + '_consensus_segmentation.nii')    
+    
+            
     

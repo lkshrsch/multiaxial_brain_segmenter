@@ -163,40 +163,41 @@ def preprocess_head_MRI(nii: nib.Nifti1Image, nii_seg: nib.Nifti1Image = None, a
         else:
             return nib.Nifti1Image(img, nii.affine), None, np.array(coords, dtype='int16'), np.array(anterior_commissure, dtype='int')
         
-        
-        
+
 def reshape_back_to_original(img, nii_original, reconstruction_parms, resample_order=1):
     d1,d2,d3, start, end = reconstruction_parms
 
     #f'{nii_out.shape}     --> (crop/pad)-->  {d1,d2,d3} --> (resample) --> {nii.shape} --> (reorient)'
 
     # pad or crop z axis
-    if d3 > 256: 
+    if d3 > 256:     
         if start < 0:
-            crop3 = d3 - 256
-            img = np.pad(img, ((0,0),(0,0),(crop3,0)))#img[:,:,crop3:]
+            pad3 = d3 - 256
+            img = np.pad(img, ((0,0),(0,0),(pad3,0)))#img[:,:,crop3:]
         else:
-            img = np.pad(img, ((0,0),(0,0),(start,end))) # img[:,:,start:end]           
+            pad_end = d3-end
+            img = np.pad(img, ((0,0),(0,0),(start,pad_end))) # img[:,:,start:end]           
     elif d3 < 256:
-        pad3 = 256-d3
-        img = img[:,:,pad3//2:pad3//2+pad3%2]
+        crop3 = 256-d3
+        img = img[:,:,crop3//2:-crop3//2+crop3%2]
     
     # pad or crop y axis
-    if d2 > 256: 
-        crop2 = d2-256
-        img = np.pad(img, ((0,0),(crop2//2,crop2//2+crop2%2),(0,0)))#img[:,:,crop3:]
+    if d2 > 256:    
+        pad2 = d2-256
+        img = np.pad(img, ((0,0),(pad2//2,pad2//2+pad2%2),(0,0)))#img[:,:,crop3:]
             
     elif d2 < 256:
-        pad2 = 256-d2
-        img = img[:,pad2//2:pad2//2+pad2%2,:]
+        crop2 = 256-d2
+        img = img[:,crop2//2:-crop2//2+crop2%2,:]
         
     # pad or crop x axis
     if d1 < 256:
-        pad1 = 256-d1
-        img = img[pad1//2:-pad1//2+pad1%2,:,:]
-    
+        crop1 = 256-d1
+        img = img[crop1//2:-crop1//2+crop1%2,:,:]
+        
+        
     # resample to original resolution
     img = resize(img, nii_original.shape, anti_aliasing=True, preserve_range=True, order=resample_order)
     
-    nii_out = nib.Nifti1Image(img, nii_original.affine)
+    nii_out = nib.Nifti1Image(np.array(img, dtype='int16'), nii_original.affine)
     return nii_out
