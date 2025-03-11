@@ -89,8 +89,7 @@ if __name__ == '__main__':
     nii_out, nii_seg_out, coords, anterior_commissure, reconstruction_parms = preprocess_head_MRI(nii, nii_seg, anterior_commissure=anterior_commissure, keep_parameters_for_reconstruction=True)     
 
     
-
-    segmentation = segment_MRI(nii_out.get_fdata(), coords, model_sagittal,model_coronal, model_axial, consensus_model)
+    segmentation = segment_MRI(nii_out.get_fdata(), coords, model_sagittal,model_axial, model_coronal, consensus_model)
 
     nii_model_seg_reconstructed = reshape_back_to_original(segmentation, nii, reconstruction_parms, resample_order=0)
     
