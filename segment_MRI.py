@@ -94,7 +94,7 @@ if __name__ == '__main__':
     nii_model_seg_reconstructed = reshape_back_to_original(segmentation, nii, reconstruction_parms, resample_order=0)
     
     if save_segmentation:
-        nii_out_pred = nib.Nifti1Image(np.array(segmentation, dtype='int16'), nii_out.affine)
+        nii_out_pred = nib.Nifti1Image(np.array(segmentation, dtype='int16'), nii.affine)
         nib.save(nii_out_pred, OUTPUT_PATH + subject + '_consensus_segmentation.nii')    
     
             

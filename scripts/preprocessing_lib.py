@@ -33,8 +33,6 @@ def create_coordinate_matrix(shape, anterior_commissure):
     matrix_with_ones = np.concatenate([coordinates, np.ones((coordinates.shape[0], coordinates.shape[1], coordinates.shape[2], 1))], axis=-1)
 
     return matrix_with_ones
-
-
 def preprocess_head_MRI(nii: nib.Nifti1Image, nii_seg: nib.Nifti1Image = None, anterior_commissure: tuple = None, keep_parameters_for_reconstruction: bool = False):
     """
     Preprocesses a head MRI image.
@@ -78,12 +76,15 @@ def preprocess_head_MRI(nii: nib.Nifti1Image, nii_seg: nib.Nifti1Image = None, a
     if np.any(np.array(nii.shape) != new_shape):
         img = resize(img, new_shape, anti_aliasing=True, preserve_range=True)
         if nii_seg is not None: img_seg = resize(img_seg, new_shape, order=0, anti_aliasing=True, preserve_range=True)
-       
-    nii.affine[0][0] = 1.
-    nii.affine[1][1] = 1.
-    nii.affine[2][2] = 1.
     
-    nii.header['pixdim'][1:4] = np.diag(nii.affine)[0:3]
+    
+    nii_new = nib.Nifti1Image(nii.get_fdata().copy(), nii.affine, nii.header)
+    
+    nii_new.affine[0][0] = 1.
+    nii_new.affine[1][1] = 1.
+    nii_new.affine[2][2] = 1.
+    
+    nii_new.header['pixdim'][1:4] = np.diag(nii_new.affine)[0:3]
     
     ############### Crop/Pad to make shape 256,256,256 ###############
     
@@ -152,17 +153,17 @@ def preprocess_head_MRI(nii: nib.Nifti1Image, nii_seg: nib.Nifti1Image = None, a
     if nii_seg is not None:
         if keep_parameters_for_reconstruction:
             reconstruction_parms = d1,d2,d3,start,end
-            return nib.Nifti1Image(img, nii.affine), nib.Nifti1Image(np.array(img_seg, dtype='int8'), nii.affine), np.array(coords, dtype='int16'), np.array(anterior_commissure, dtype='int'), reconstruction_parms
+            return nib.Nifti1Image(img, nii_new.affine), nib.Nifti1Image(np.array(img_seg, dtype='int8'), nii_new.affine), np.array(coords, dtype='int16'), np.array(anterior_commissure, dtype='int'), reconstruction_parms
         else:
-            return nib.Nifti1Image(img, nii.affine), nib.Nifti1Image(np.array(img_seg, dtype='int8'), nii.affine), np.array(coords, dtype='int16'), np.array(anterior_commissure, dtype='int')
+            return nib.Nifti1Image(img, nii_new.affine), nib.Nifti1Image(np.array(img_seg, dtype='int8'), nii_new.affine), np.array(coords, dtype='int16'), np.array(anterior_commissure, dtype='int')
 
     else:
         if keep_parameters_for_reconstruction:
             reconstruction_parms = d1,d2,d3,start,end
-            return nib.Nifti1Image(img, nii.affine), None, np.array(coords, dtype='int16'), np.array(anterior_commissure, dtype='int'), reconstruction_parms
+            return nib.Nifti1Image(img, nii_new.affine), None, np.array(coords, dtype='int16'), np.array(anterior_commissure, dtype='int'), reconstruction_parms
         else:
-            return nib.Nifti1Image(img, nii.affine), None, np.array(coords, dtype='int16'), np.array(anterior_commissure, dtype='int')
-        
+            return nib.Nifti1Image(img, nii_new.affine), None, np.array(coords, dtype='int16'), np.array(anterior_commissure, dtype='int')
+
 
 def reshape_back_to_original(img, nii_original, reconstruction_parms, resample_order=1):
     d1,d2,d3, start, end = reconstruction_parms
