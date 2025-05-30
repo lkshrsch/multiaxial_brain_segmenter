@@ -12,3 +12,5 @@ https://arxiv.org/abs/2501.18716
 A DOI will be added once the paper is published (currently in review).
 
 Kaggle link to model, demo and accompanying data release: https://www.kaggle.com/datasets/andrewbirnbaum/full-head-mri-and-segmentation-of-stroke-patients
+
+Data and model has been released for open use, using license Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International. 
